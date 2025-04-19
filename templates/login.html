@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="form-container" style="background-image: url('https://images.unsplash.com/photo-1612831660476-c7e87d2a3cbe?auto=format&fit=crop&w=2070&q=80');">
+    <form method="POST">
+        {{ form.hidden_tag() }}
+        <h2>Login</h2>
+        {{ form.email.label }} {{ form.email(class="form-input") }}
+        {{ form.password.label }} {{ form.password(class="form-input") }}
+        {{ form.submit(class="btn") }}
+    </form>
+</div>
+{% endblock %}

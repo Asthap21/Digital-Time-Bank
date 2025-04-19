@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="home" style="background-image: url('https://images.unsplash.com/photo-1508780709619-79562169bc64?auto=format&fit=crop&w=2070&q=80');">
+    <div class="home-content">
+        <h1>Welcome to the Digital Time Bank</h1>
+        <p>Earn and exchange time credits by offering and receiving help!</p>
+        <a href="{{ url_for('register') }}" class="btn">Get Started</a>
+    </div>
+</div>
+{% endblock %}
