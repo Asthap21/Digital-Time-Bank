@@ -12,6 +12,8 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(120), unique=True, nullable=False)
     password_hash = db.Column(db.String(128), nullable=False)
     points = db.Column(db.Integer, default=0)
+    mobile = db.Column(db.String(15), nullable=True)
+
 
     services = db.relationship('Service', backref='provider', lazy=True)
 
@@ -27,3 +29,4 @@ class Service(db.Model):
     description = db.Column(db.Text, nullable=False)
     date_posted = db.Column(db.DateTime, default=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    available = db.Column(db.Boolean, default=True)

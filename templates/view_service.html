@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="form-container">
+    <h2>{{ service.name }}</h2>
+    <p>{{ service.description }}</p>
+    <p>Provider: {{ service.provider.username }} ({{ service.provider.mobile or 'No contact' }})</p>
+    <p>Status: {{ 'Available' if service.available else 'Not Available' }}</p>
+</div>
+{% endblock %}

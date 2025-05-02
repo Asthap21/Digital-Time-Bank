@@ -1,7 +1,7 @@
 from flask import Flask, render_template, redirect, url_for, flash, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
-from forms import RegistrationForm, LoginForm, ServiceForm
+from forms import RegistrationForm, LoginForm, ServiceForm , EditServiceForm
 from models import db, User, Service
 from datetime import datetime
 
@@ -83,7 +83,81 @@ def logout():
     flash('You have been logged out.', 'info')
     return redirect(url_for('home'))
 
+def preload_services():
+    defaults = ['Tutoring', 'Cooking', 'Cleaning']
+    for name in defaults:
+        existing = Service.query.filter_by(name=name).first()
+        if not existing:
+            first_user = User.query.first()
+            if first_user:
+                service = Service(
+                    name=name,
+                    description=f"{name} service",
+                    provider=first_user,
+                    available=True
+                )
+                db.session.add(service)
+    db.session.commit()
+
+@app.route('/services')
+@login_required
+def services():
+    services = Service.query.all()
+    return render_template('services.html', services=services)
+
+@app.route('/service/<int:service_id>')
+@login_required
+def view_service(service_id):
+    service = Service.query.get_or_404(service_id)
+    return render_template('view_service.html', service=service)
+
+@app.route('/take_service/<int:service_id>')
+@login_required
+def take_service(service_id):
+    service = Service.query.get_or_404(service_id)
+    if service.available and service.provider != current_user:
+        current_user.points -= 10
+        service.provider.points += 10
+        service.available = False
+        db.session.commit()
+        flash("You successfully took the service!", "success")
+    else:
+        flash("Service not available or it's your own.", "danger")
+    return redirect(url_for('services'))
+
+@app.route('/edit_service/<int:service_id>', methods=['GET', 'POST'])
+@login_required
+def edit_service(service_id):
+    service = Service.query.get_or_404(service_id)
+    if service.provider != current_user:
+        flash("Not authorized to edit.", "danger")
+        return redirect(url_for('services'))
+    form = EditServiceForm(obj=service)
+    if form.validate_on_submit():
+        service.name = form.name.data
+        service.description = form.description.data
+        service.available = form.available.data
+        db.session.commit()
+        flash("Service updated!", "success")
+        return redirect(url_for('services'))
+    return render_template('edit_service.html', form=form)
+
+@app.route('/delete_service/<int:service_id>')
+@login_required
+def delete_service(service_id):
+    service = Service.query.get_or_404(service_id)
+    if service.provider != current_user:
+        flash("Not authorized to delete.", "danger")
+    else:
+        db.session.delete(service)
+        db.session.commit()
+        flash("Service deleted!", "info")
+    return redirect(url_for('services'))
+
+
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
+        preload_services()
     app.run(debug=True)
+
