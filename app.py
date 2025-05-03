@@ -4,6 +4,7 @@ from flask_login import LoginManager, UserMixin, login_user, login_required, log
 from forms import RegistrationForm, LoginForm, ServiceForm , EditServiceForm
 from models import db, User, Service
 from datetime import datetime
+from flask_migrate import Migrate
 
 
 app = Flask(__name__)
@@ -36,7 +37,12 @@ def register():
         if existing_user:
             flash('You are already registered!', 'warning')
             return redirect(url_for('login'))
-        user = User(username=form.username.data, email=form.email.data)
+        user = User(
+        username=form.username.data,
+        email=form.email.data,
+        mobile=form.mobile.data
+      )
+
         user.set_password(form.password.data)
         db.session.add(user)
         db.session.commit()
